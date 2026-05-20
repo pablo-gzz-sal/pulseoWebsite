@@ -33,7 +33,7 @@ import { ScreenAiNotesComponent } from '../../../shared/components/screens/scree
         <div class="grid lg:grid-cols-[1.2fr_1fr] gap-12 lg:gap-8 xl:gap-16 items-center">
 
           <!-- ── Left: copy ── -->
-          <div class="flex flex-col gap-7 order-2 lg:order-1">
+          <div class="flex flex-col gap-7">
 
             <!-- Eyebrow badge with live dot -->
             <div class="hero-eyebrow inline-flex items-center gap-2.5 self-start
@@ -136,7 +136,7 @@ import { ScreenAiNotesComponent } from '../../../shared/components/screens/scree
 
           <!-- ── Right: phone constellation ── -->
           <div class="hero-right-col relative flex justify-center lg:justify-end items-center
-                      order-1 lg:order-2 min-h-[420px] lg:min-h-0">
+                      order-2 min-h-[420px] lg:min-h-0">
 
             <!-- Ambient radial glow sitting behind the phone -->
             <div class="absolute w-[440px] h-[440px] rounded-full -z-10"
