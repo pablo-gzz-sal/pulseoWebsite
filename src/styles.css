@@ -177,6 +177,16 @@ body::before {
   white-space: nowrap;
   cursor: pointer;
   border: 0;
+  outline: 0;
+}
+.btn:focus-visible {
+  box-shadow: 0 0 0 3px var(--color-bg), 0 0 0 5px var(--color-primary);
+}
+.btn:disabled,
+.btn[disabled] {
+  opacity: 0.55;
+  cursor: not-allowed;
+  transform: none;
 }
 
 .btn-primary {
@@ -184,7 +194,7 @@ body::before {
   color: white;
   box-shadow: 0 8px 24px -10px rgba(8, 145, 178, 0.6);
 }
-.btn-primary:hover {
+.btn-primary:hover:not(:disabled) {
   background: var(--color-primary-dark);
   transform: translateY(-1px);
   box-shadow: 0 12px 28px -10px rgba(8, 145, 178, 0.7);
@@ -195,9 +205,20 @@ body::before {
   color: var(--color-ink);
   border: 1px solid rgba(15, 23, 42, 0.12);
 }
-.btn-ghost:hover {
+.btn-ghost:hover:not(:disabled) {
   background: rgba(8, 145, 178, 0.06);
   border-color: rgba(8, 145, 178, 0.25);
+}
+
+/* Keyboard focus for in-text links and interactive elements that don't use .btn */
+a:focus-visible,
+button:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 3px;
+  border-radius: 6px;
+}
+.btn:focus-visible {
+  outline: 0;
 }
 
 /* GSAP sets initial hidden state via gsap.set() — no CSS pre-hiding to avoid invisible content when GSAP loads async */

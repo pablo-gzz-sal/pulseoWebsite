@@ -29,6 +29,7 @@ type Status = 'idle' | 'submitting' | 'success' | 'error';
       <button
         class="btn btn-primary h-12 px-6"
         type="submit"
+        [attr.aria-busy]="status() === 'submitting' ? 'true' : null"
         [disabled]="status() === 'submitting' || status() === 'success'"
       >
         @if (status() === 'submitting') {
@@ -40,10 +41,12 @@ type Status = 'idle' | 'submitting' | 'success' | 'error';
             <path d="M5 12l5 5L20 7" />
           </svg>
         }
-        <span>{{ status() === 'success' ? '✓' : i18n.t('cta.button') }}</span>
+        <span>{{ status() === 'success' ? (i18n.isES() ? 'Listo' : 'Done') : i18n.t('cta.button') }}</span>
       </button>
     </form>
     <p class="mt-3 text-[13px] min-h-[20px]"
+       [attr.role]="status() === 'error' ? 'alert' : 'status'"
+       aria-live="polite"
        [class.text-secondary]="status() === 'success'"
        [class.text-danger]="status() === 'error'"
        [class.text-ink-soft]="status() === 'idle' || status() === 'submitting'">

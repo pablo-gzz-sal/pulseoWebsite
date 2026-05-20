@@ -52,7 +52,9 @@ export class CtaWaitlistSection implements OnInit {
 
     this.zone.runOutsideAngular(() => {
       const root = this.el.nativeElement;
-      gsap.from(root.querySelector('#card'), {
+      const card = root.querySelector('#cta-card');
+      if (!card) return;
+      gsap.from(card, {
         opacity: 0,
         y: 40,
         duration: 1,
