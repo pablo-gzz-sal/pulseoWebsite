@@ -1,0 +1,226 @@
+@import "tailwindcss";
+
+@theme {
+  --color-primary: #0891B2;
+  --color-primary-light: #22D3EE;
+  --color-primary-dark: #0E7490;
+  --color-secondary: #059669;
+  --color-secondary-light: #34D399;
+  --color-secondary-dark: #047857;
+  --color-accent: #F59E0B;
+  --color-accent-light: #FCD34D;
+  --color-danger: #DC2626;
+  --color-bg: #F0F9FF;
+  --color-surface: #FFFFFF;
+  --color-ink: #0F172A;
+  --color-ink-muted: #475569;
+  --color-ink-soft: #94A3B8;
+
+  --color-status-taken: #059669;
+  --color-status-pending: #F59E0B;
+  --color-status-overdue: #DC2626;
+  --color-status-scheduled: #0891B2;
+
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Figtree", "Inter", ui-sans-serif, system-ui, sans-serif;
+
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 20px;
+
+  --shadow-brand-sm: 0 2px 8px rgba(8, 145, 178, 0.06);
+  --shadow-brand-md: 0 4px 12px rgba(8, 145, 178, 0.08);
+  --shadow-brand-lg: 0 8px 20px rgba(8, 145, 178, 0.12);
+  --shadow-phone: 0 30px 60px -20px rgba(8, 145, 178, 0.35);
+}
+
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 80px;
+}
+
+:root {
+  color-scheme: light;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+html, body {
+  background: var(--color-bg);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  overflow-x: hidden;
+}
+
+h1, h2, h3, h4, h5 {
+  font-family: var(--font-display);
+  letter-spacing: -0.02em;
+}
+
+::selection {
+  background: color-mix(in oklab, var(--color-primary) 30%, white);
+  color: var(--color-ink);
+}
+
+.section {
+  width: 100%;
+  max-width: 1200px;
+  margin-inline: auto;
+  padding-inline: clamp(24px, 5vw, 48px);
+}
+
+.section-y {
+  padding-block: clamp(48px, 7vw, 88px);
+}
+
+/* Dot grid background pattern */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -20;
+  background-image: radial-gradient(rgba(8, 145, 178, 0.08) 1px, transparent 1px);
+  background-size: 28px 28px;
+  pointer-events: none;
+}
+
+/* Animated gradient bg orbs (applied to specific sections via class) */
+.orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(72px);
+  opacity: 0.45;
+  pointer-events: none;
+  will-change: transform;
+  animation: orb-drift 12s ease-in-out infinite alternate;
+}
+
+.orb-teal {
+  background: radial-gradient(closest-side, rgba(34, 211, 238, 0.55), transparent);
+}
+
+.orb-green {
+  background: radial-gradient(closest-side, rgba(52, 211, 153, 0.45), transparent);
+}
+
+.orb-amber {
+  background: radial-gradient(closest-side, rgba(245, 158, 11, 0.35), transparent);
+}
+
+@keyframes orb-drift {
+  0%   { transform: translate(0, 0) scale(1); }
+  33%  { transform: translate(8px, -16px) scale(1.04); }
+  66%  { transform: translate(-12px, 8px) scale(0.97); }
+  100% { transform: translate(6px, 14px) scale(1.02); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .orb { animation: none; }
+}
+
+.h-display {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: clamp(2.5rem, 6vw, 4.75rem);
+  line-height: 1.02;
+  letter-spacing: -0.035em;
+}
+
+.h2 {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: clamp(1.75rem, 3.5vw, 2.75rem);
+  line-height: 1.08;
+  letter-spacing: -0.025em;
+}
+
+.eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  text-transform: uppercase;
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  font-weight: 600;
+  color: var(--color-primary-dark);
+}
+
+.eyebrow::before {
+  content: "";
+  width: 18px;
+  height: 1.5px;
+  background: var(--color-primary);
+  border-radius: 2px;
+}
+
+.glass {
+  background: color-mix(in oklab, white 70%, transparent);
+  backdrop-filter: saturate(180%) blur(14px);
+  -webkit-backdrop-filter: saturate(180%) blur(14px);
+  border: 1px solid rgba(8, 145, 178, 0.08);
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 48px;
+  padding-inline: 22px;
+  border-radius: 9999px;
+  font-weight: 600;
+  font-size: 15px;
+  letter-spacing: -0.005em;
+  transition: transform 200ms ease, box-shadow 200ms ease, background 200ms ease;
+  white-space: nowrap;
+  cursor: pointer;
+  border: 0;
+}
+
+.btn-primary {
+  background: var(--color-primary);
+  color: white;
+  box-shadow: 0 8px 24px -10px rgba(8, 145, 178, 0.6);
+}
+.btn-primary:hover {
+  background: var(--color-primary-dark);
+  transform: translateY(-1px);
+  box-shadow: 0 12px 28px -10px rgba(8, 145, 178, 0.7);
+}
+
+.btn-ghost {
+  background: transparent;
+  color: var(--color-ink);
+  border: 1px solid rgba(15, 23, 42, 0.12);
+}
+.btn-ghost:hover {
+  background: rgba(8, 145, 178, 0.06);
+  border-color: rgba(8, 145, 178, 0.25);
+}
+
+/* GSAP sets initial hidden state via gsap.set() — no CSS pre-hiding to avoid invisible content when GSAP loads async */
+
+.marquee-track {
+  display: flex;
+  gap: 48px;
+  width: max-content;
+  will-change: transform;
+}
+
+.card {
+  background: var(--color-surface);
+  border-radius: var(--radius-lg);
+  border: 1px solid rgba(15, 23, 42, 0.06);
+  box-shadow: var(--shadow-brand-sm);
+  transition: transform 250ms ease, box-shadow 250ms ease;
+}
+.card-hover:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-brand-md);
+}
+
+/* Hide scrollbars on horizontal carousels */
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { scrollbar-width: none; }
