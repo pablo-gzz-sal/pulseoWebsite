@@ -9,20 +9,25 @@ import { WaitlistFormComponent } from '../../../shared/components/waitlist-form/
   imports: [WaitlistFormComponent],
   template: `
     <section id="waitlist" class="section section-y">
-      <div id="cta-card" class="relative overflow-hidden rounded-[28px] p-8 sm:p-14 text-center"
+      <div id="cta-card" class="relative overflow-hidden rounded-[32px] p-8 py-14 sm:p-16 sm:py-20 text-center"
         style="background:
-          radial-gradient(800px 400px at 20% 10%, rgba(34,211,238,0.30), transparent 60%),
-          radial-gradient(800px 400px at 90% 90%, rgba(5,150,105,0.25), transparent 60%),
-          linear-gradient(180deg, #ECFEFF 0%, #F0F9FF 100%);
-          border: 1px solid rgba(8,145,178,0.15);">
-        <span class="eyebrow justify-center inline-flex">{{ i18n.t('cta.eyebrow') }}</span>
-        <h2 class="h2 mt-4 mx-auto" style="max-width: 16ch;">{{ i18n.t('cta.h2') }}</h2>
+          radial-gradient(900px 460px at 15% 0%, rgba(34,211,238,0.22), transparent 60%),
+          radial-gradient(900px 460px at 95% 100%, rgba(52,211,153,0.16), transparent 60%),
+          linear-gradient(165deg, #0A2E3C 0%, #07242F 100%);
+          border: 1px solid rgba(34,211,238,0.18);
+          box-shadow: 0 40px 90px -40px rgba(7,36,47,0.55), inset 0 1px 0 rgba(255,255,255,0.08);">
+        <span class="inline-flex items-center gap-2.5 text-[11px] font-semibold tracking-[0.18em] uppercase text-cyan-300/90">
+          <span class="w-[18px] h-px bg-cyan-300/70" aria-hidden="true"></span>
+          {{ i18n.t('cta.eyebrow') }}
+          <span class="w-[18px] h-px bg-cyan-300/70" aria-hidden="true"></span>
+        </span>
+        <h2 class="h2 mt-5 mx-auto text-white" style="max-width: 16ch;">{{ i18n.t('cta.h2') }}</h2>
 
-        <div class="mt-8 flex flex-col items-center">
+        <div class="mt-9 flex flex-col items-center" style="--color-ink-soft: #9FC2CE; --color-bg: #07242F;">
           <app-waitlist-form />
         </div>
 
-        <div class="mt-10 flex items-center justify-center gap-6 text-[12px] text-ink-soft">
+        <div class="mt-10 flex flex-wrap items-center justify-center gap-x-6 gap-y-3 text-[12px] text-cyan-100/60">
           <span class="inline-flex items-center gap-1.5">
             <svg viewBox="0 0 24 24" class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>
             {{ i18n.isES() ? 'Sin spam' : 'No spam' }}

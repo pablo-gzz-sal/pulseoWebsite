@@ -1,4 +1,4 @@
-import { Component, ElementRef, OnInit, inject, NgZone } from '@angular/core';
+import { Component, ElementRef, OnInit, inject, NgZone, computed } from '@angular/core';
 import { I18nService } from '../../../core/i18n/i18n.service';
 import { GsapService } from '../../../core/animation/gsap.service';
 import { PhoneMockupComponent } from '../../../shared/components/phone-mockup/phone-mockup.component';
@@ -29,7 +29,7 @@ import { ScreenAiNotesComponent } from '../../../shared/components/screens/scree
       </div>
 
       <!-- ── Grid ── -->
-      <div class="section flex-1 flex flex-col justify-center pt-28 pb-20 md:pt-32 md:pb-24">
+      <div class="section relative z-10 flex-1 flex flex-col justify-center pt-28 pb-20 md:pt-32 md:pb-24">
         <div class="grid lg:grid-cols-[1.2fr_1fr] gap-12 lg:gap-8 xl:gap-16 items-center">
 
           <!-- ── Left: copy ── -->
@@ -49,12 +49,17 @@ import { ScreenAiNotesComponent } from '../../../shared/components/screens/scree
               </span>
             </div>
 
-            <!-- Headline — editorial scale, max visual impact -->
-            <h1 class="hero-headline font-bold leading-[1.0] tracking-[-0.038em] text-ink"
+            <!-- Headline — masked word-by-word reveal, serif italic accent on the close -->
+            <h1 class="hero-headline font-bold leading-[1.02] tracking-[-0.038em] text-ink"
                 style="font-family: var(--font-display);
                        font-size: clamp(2.8rem, 6.5vw, 5.2rem);
                        max-width: 14ch;">
-              {{ i18n.t('hero.h1') }}
+              @for (word of headlineWords(); track $index) {
+                <span class="inline-block overflow-hidden align-bottom pb-[0.08em] -mb-[0.08em] mr-[0.22em] last:mr-0">
+                  <span class="hero-word inline-block"
+                        [class.accent-serif]="word.accent">{{ word.text }}</span>
+                </span>
+              }
             </h1>
 
             <!-- Sub — comfortable reading width -->
@@ -246,7 +251,7 @@ import { ScreenAiNotesComponent } from '../../../shared/components/screens/scree
       </div>
 
       <!-- ── Scroll cue ── -->
-      <div class="hero-scroll-cue absolute bottom-7 left-1/2 -translate-x-1/2
+      <div class="hero-scroll-cue absolute bottom-7 left-1/2 -translate-x-1/2 z-10
                   flex flex-col items-center gap-2" style="opacity:0;">
         <span class="text-[10px] font-semibold tracking-[0.22em] uppercase text-ink-soft">
           {{ i18n.isES() ? 'Explorar' : 'Explore' }}
@@ -264,6 +269,12 @@ export class HeroSection implements OnInit {
   private readonly gsapSvc = inject(GsapService);
   private readonly zone = inject(NgZone);
 
+  /** Headline split into words; the last two carry the italic serif accent. */
+  readonly headlineWords = computed(() => {
+    const words = this.i18n.t('hero.h1').split(' ').filter(Boolean);
+    return words.map((text, i) => ({ text, accent: i >= words.length - 2 }));
+  });
+
   async ngOnInit() {
     const { gsap, ScrollTrigger } = await this.gsapSvc.load();
     const reduced = this.gsapSvc.prefersReducedMotion();
@@ -273,7 +284,7 @@ export class HeroSection implements OnInit {
       const q = (sel: string) => root.querySelector(sel);
 
       const eyebrow   = q('.hero-eyebrow');
-      const headline  = q('.hero-headline');
+      const words     = Array.from(root.querySelectorAll('.hero-word'));
       const sub       = q('.hero-sub');
       const ctas      = q('.hero-ctas');
       const trust     = q('.hero-trust');
@@ -289,7 +300,7 @@ export class HeroSection implements OnInit {
       // ── Reduced-motion: set everything to final state immediately ──
       if (reduced) {
         gsap.set(
-          [eyebrow, headline, sub, ctas, trust, rightCol, card1, card2, card3, card4, scrollCue],
+          [eyebrow, ...words, sub, ctas, trust, rightCol, card1, card2, card3, card4, scrollCue],
           { opacity: 1, y: 0, x: 0 }
         );
         return;
@@ -336,9 +347,9 @@ export class HeroSection implements OnInit {
       // ── Entrance timeline ──
       const tl = gsap.timeline({ defaults: { ease: 'power3.out' } });
 
-      // Left column — cascade down
+      // Left column — cascade down; headline words rise out of their masks
       tl.from(eyebrow,  { y: 22, opacity: 0, duration: 0.65 })
-        .from(headline, { y: 44, opacity: 0, duration: 1.0, ease: 'power4.out' }, '-=0.40')
+        .from(words,    { yPercent: 112, duration: 0.9, ease: 'power4.out', stagger: 0.05 }, '-=0.40')
         .from(sub,      { y: 26, opacity: 0, duration: 0.75 }, '-=0.60')
         .from(ctas,     { y: 20, opacity: 0, duration: 0.60 }, '-=0.55')
         .from(trust,    { y: 16, opacity: 0, duration: 0.50 }, '-=0.48');

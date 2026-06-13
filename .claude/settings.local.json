@@ -1,7 +1,13 @@
 {
   "permissions": {
     "allow": [
-      "Bash(npx ng *)"
+      "Bash(npx ng *)",
+      "Skill(impeccable)",
+      "Skill(impeccable:*)",
+      "PowerShell(npm install three)",
+      "PowerShell(npm install -D @types/three)",
+      "mcp__Claude_Preview__preview_start",
+      "PowerShell(npm run build; \"EXIT: $LASTEXITCODE\")"
     ]
   }
 }

@@ -10,29 +10,34 @@
   --color-accent: #F59E0B;
   --color-accent-light: #FCD34D;
   --color-danger: #DC2626;
-  --color-bg: #F0F9FF;
+  --color-bg: #F4FAFC;
   --color-surface: #FFFFFF;
-  --color-ink: #0F172A;
-  --color-ink-muted: #475569;
-  --color-ink-soft: #94A3B8;
+  --color-ink: #0B1B26;
+  --color-ink-muted: #44606E;
+  --color-ink-soft: #8AA3AF;
+  --color-deep: #07242F;
 
   --color-status-taken: #059669;
   --color-status-pending: #F59E0B;
   --color-status-overdue: #DC2626;
   --color-status-scheduled: #0891B2;
 
-  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
-  --font-display: "Figtree", "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-sans: "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Bricolage Grotesque", "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-serif: "Instrument Serif", Georgia, serif;
 
   --radius-sm: 8px;
   --radius-md: 12px;
-  --radius-lg: 16px;
-  --radius-xl: 20px;
+  --radius-lg: 18px;
+  --radius-xl: 24px;
 
   --shadow-brand-sm: 0 2px 8px rgba(8, 145, 178, 0.06);
   --shadow-brand-md: 0 4px 12px rgba(8, 145, 178, 0.08);
   --shadow-brand-lg: 0 8px 20px rgba(8, 145, 178, 0.12);
   --shadow-phone: 0 30px 60px -20px rgba(8, 145, 178, 0.35);
+
+  --ease-out-quart: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-swift: cubic-bezier(0.32, 0.72, 0, 1);
 }
 
 html {
@@ -47,8 +52,13 @@ html {
   text-rendering: optimizeLegibility;
 }
 
-html, body {
+html {
   background: var(--color-bg);
+}
+
+body {
+  /* transparent so the fixed three.js canvas (z-index:-1) shows through */
+  background: transparent;
   color: var(--color-ink);
   font-family: var(--font-sans);
   overflow-x: hidden;
@@ -57,6 +67,7 @@ html, body {
 h1, h2, h3, h4, h5 {
   font-family: var(--font-display);
   letter-spacing: -0.02em;
+  text-wrap: balance;
 }
 
 ::selection {
@@ -72,7 +83,7 @@ h1, h2, h3, h4, h5 {
 }
 
 .section-y {
-  padding-block: clamp(48px, 7vw, 88px);
+  padding-block: clamp(64px, 9vw, 128px);
 }
 
 /* Dot grid background pattern */
@@ -81,9 +92,20 @@ body::before {
   position: fixed;
   inset: 0;
   z-index: -20;
-  background-image: radial-gradient(rgba(8, 145, 178, 0.08) 1px, transparent 1px);
+  background-image: radial-gradient(rgba(8, 145, 178, 0.07) 1px, transparent 1px);
   background-size: 28px 28px;
   pointer-events: none;
+}
+
+/* Film grain — breaks digital flatness. Fixed, non-interactive. */
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  pointer-events: none;
+  opacity: 0.035;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
 }
 
 /* Animated gradient bg orbs (applied to specific sections via class) */
@@ -123,17 +145,27 @@ body::before {
 .h-display {
   font-family: var(--font-display);
   font-weight: 700;
-  font-size: clamp(2.5rem, 6vw, 4.75rem);
-  line-height: 1.02;
+  font-size: clamp(2.6rem, 6.4vw, 5.4rem);
+  line-height: 1.0;
   letter-spacing: -0.035em;
 }
 
 .h2 {
   font-family: var(--font-display);
   font-weight: 700;
-  font-size: clamp(1.75rem, 3.5vw, 2.75rem);
-  line-height: 1.08;
-  letter-spacing: -0.025em;
+  font-size: clamp(1.9rem, 4vw, 3.1rem);
+  line-height: 1.06;
+  letter-spacing: -0.028em;
+}
+
+/* Italic serif accent inside display headings */
+.accent-serif {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-weight: 400;
+  font-size: 1.06em;
+  letter-spacing: -0.01em;
+  color: var(--color-primary-dark);
 }
 
 .eyebrow {
@@ -173,11 +205,14 @@ body::before {
   font-weight: 600;
   font-size: 15px;
   letter-spacing: -0.005em;
-  transition: transform 200ms ease, box-shadow 200ms ease, background 200ms ease;
+  transition: transform 180ms var(--ease-swift), box-shadow 180ms var(--ease-swift), background 180ms var(--ease-swift), border-color 180ms var(--ease-swift);
   white-space: nowrap;
   cursor: pointer;
   border: 0;
   outline: 0;
+}
+.btn:active:not(:disabled) {
+  transform: scale(0.97);
 }
 .btn:focus-visible {
   box-shadow: 0 0 0 3px var(--color-bg), 0 0 0 5px var(--color-primary);
@@ -192,18 +227,18 @@ body::before {
 .btn-primary {
   background: var(--color-primary);
   color: white;
-  box-shadow: 0 8px 24px -10px rgba(8, 145, 178, 0.6);
+  box-shadow: 0 8px 24px -10px rgba(8, 145, 178, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.18);
 }
 .btn-primary:hover:not(:disabled) {
   background: var(--color-primary-dark);
   transform: translateY(-1px);
-  box-shadow: 0 12px 28px -10px rgba(8, 145, 178, 0.7);
+  box-shadow: 0 12px 28px -10px rgba(8, 145, 178, 0.7), inset 0 1px 0 rgba(255, 255, 255, 0.18);
 }
 
 .btn-ghost {
   background: transparent;
   color: var(--color-ink);
-  border: 1px solid rgba(15, 23, 42, 0.12);
+  border: 1px solid rgba(11, 27, 38, 0.12);
 }
 .btn-ghost:hover:not(:disabled) {
   background: rgba(8, 145, 178, 0.06);
@@ -233,13 +268,37 @@ button:focus-visible {
 .card {
   background: var(--color-surface);
   border-radius: var(--radius-lg);
-  border: 1px solid rgba(15, 23, 42, 0.06);
+  border: 1px solid rgba(11, 27, 38, 0.06);
   box-shadow: var(--shadow-brand-sm);
-  transition: transform 250ms ease, box-shadow 250ms ease;
+  transition: transform 280ms var(--ease-out-quart), box-shadow 280ms var(--ease-out-quart), border-color 280ms var(--ease-out-quart);
 }
 .card-hover:hover {
-  transform: translateY(-2px);
+  transform: translateY(-3px);
   box-shadow: var(--shadow-brand-md);
+  border-color: rgba(8, 145, 178, 0.18);
+}
+
+/* Spotlight border — card edge illuminates under the cursor.
+   --mx / --my set per-card from a pointermove listener. */
+.spotlight-card {
+  position: relative;
+}
+.spotlight-card::before {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  padding: 1px;
+  background: radial-gradient(220px circle at var(--mx, 50%) var(--my, 50%), rgba(8, 145, 178, 0.55), transparent 70%);
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  opacity: 0;
+  transition: opacity 320ms var(--ease-out-quart);
+  pointer-events: none;
+}
+@media (hover: hover) and (pointer: fine) {
+  .spotlight-card:hover::before { opacity: 1; }
 }
 
 /* Hide scrollbars on horizontal carousels */

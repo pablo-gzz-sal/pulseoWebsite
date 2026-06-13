@@ -1,10 +1,12 @@
 import { Component, Input } from '@angular/core';
+import { SpotlightDirective } from '../../directives/spotlight.directive';
 
 @Component({
   selector: 'app-feature-card',
   standalone: true,
+  imports: [SpotlightDirective],
   template: `
-    <article class="card card-hover p-7 flex flex-col gap-4 h-full">
+    <article appSpotlight class="card card-hover p-7 flex flex-col gap-4 h-full">
       <span
         class="grid place-items-center w-11 h-11 rounded-xl"
         [style.background]="iconBg"
