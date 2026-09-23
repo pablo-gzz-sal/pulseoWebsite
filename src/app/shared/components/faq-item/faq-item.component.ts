@@ -5,43 +5,49 @@ let faqUid = 0;
 @Component({
   selector: 'app-faq-item',
   standalone: true,
+  host: { class: 'block border-b hairline' },
   template: `
-    <div class="card overflow-hidden">
+    <h3>
       <button
         type="button"
-        class="flex w-full items-center justify-between gap-4 px-6 py-5 text-left"
+        class="group flex w-full items-baseline gap-5 py-6 text-left"
         [attr.aria-expanded]="open()"
         [attr.aria-controls]="panelId"
         [id]="buttonId"
         (click)="open.set(!open())"
       >
-        <span class="text-[16px] font-semibold text-ink leading-snug" style="font-family: var(--font-display);">{{ question }}</span>
+        <span class="text-[12px] tabular-nums transition-colors"
+              [class]="open() ? 'text-primary' : 'text-ink-soft'">0{{ index }}</span>
+        <span class="flex-1 text-[17px] sm:text-[19px] font-semibold tracking-tight text-ink leading-snug group-hover:text-primary-dark transition-colors">{{ question }}</span>
         <span
-          class="grid place-items-center w-8 h-8 rounded-full bg-primary/[0.08] text-primary shrink-0"
-          style="transition: transform 300ms ease;"
+          class="relative w-4 h-4 shrink-0 self-center text-ink"
+          style="transition: transform 300ms var(--ease-out-quart);"
           [style.transform]="open() ? 'rotate(45deg)' : 'rotate(0deg)'"
           aria-hidden="true"
         >
-          <svg viewBox="0 0 24 24" class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
-            <path d="M12 5v14M5 12h14"/>
-          </svg>
+          <span class="absolute left-0 right-0 top-1/2 h-[1.5px] -translate-y-1/2 bg-current rounded"></span>
+          <span class="absolute top-0 bottom-0 left-1/2 w-[1.5px] -translate-x-1/2 bg-current rounded"></span>
         </span>
       </button>
-      <div
-        class="overflow-hidden"
-        [id]="panelId"
-        role="region"
-        [attr.aria-labelledby]="buttonId"
-        [attr.aria-hidden]="!open()"
-        style="transition: max-height 320ms cubic-bezier(0.4,0,0.2,1);"
-        [style.maxHeight]="open() ? '400px' : '0px'"
-      >
-        <p class="px-6 pb-6 text-[15px] leading-relaxed text-ink-muted">{{ answer }}</p>
+    </h3>
+    <div
+      class="grid"
+      [id]="panelId"
+      role="region"
+      [attr.aria-labelledby]="buttonId"
+      [attr.aria-hidden]="!open()"
+      [attr.inert]="open() ? null : ''"
+      style="transition: grid-template-rows 320ms var(--ease-out-quart);"
+      [style.gridTemplateRows]="open() ? '1fr' : '0fr'"
+    >
+      <div class="overflow-hidden">
+        <p class="pl-[calc(12px*1.6+20px)] pr-8 pb-6 text-[15.5px] leading-relaxed text-ink-muted max-w-[60ch]">{{ answer }}</p>
       </div>
     </div>
   `,
 })
 export class FaqItemComponent {
+  @Input() index = 1;
   @Input() question = '';
   @Input() answer = '';
   readonly open = signal(false);

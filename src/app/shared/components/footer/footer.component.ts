@@ -7,19 +7,20 @@ import { LogoComponent } from '../logo/logo.component';
   standalone: true,
   imports: [LogoComponent],
   template: `
-    <footer class="mt-24 border-t border-slate-200/70 bg-white/40">
-      <div class="section py-10 flex flex-col md:flex-row items-center justify-between gap-6">
-        <div class="flex items-center gap-4">
+    <footer class="border-t hairline">
+      <div class="section py-12 flex flex-col gap-10 md:flex-row md:items-end md:justify-between">
+        <div class="flex flex-col gap-3">
           <app-logo />
-          <span class="text-[13px] text-ink-soft hidden sm:inline">·</span>
-          <span class="text-[13px] text-ink-soft">{{ i18n.t('footer.tagline') }}</span>
+          <p class="text-[14px] text-ink-muted">{{ i18n.t('footer.tagline') }}</p>
         </div>
-        <div class="flex items-center gap-6 text-[13px] text-ink-muted">
-          <a href="#privacy" class="hover:text-ink transition">{{ i18n.t('footer.privacy') }}</a>
-          <a href="#" class="hover:text-ink transition">{{ i18n.t('footer.terms') }}</a>
-          <a href="mailto:hola@pulseo.app" class="hover:text-ink transition">{{ i18n.t('footer.contact') }}</a>
+        <div class="flex flex-col gap-4 md:items-end">
+          <nav class="flex items-center gap-6 text-[14px] text-ink-muted" [attr.aria-label]="i18n.isES() ? 'Pie de página' : 'Footer'">
+            <a href="#privacy" class="hover:text-ink transition-colors">{{ i18n.t('footer.privacy') }}</a>
+            <a href="#" class="hover:text-ink transition-colors">{{ i18n.t('footer.terms') }}</a>
+            <a href="mailto:hola@pulseo.app" class="hover:text-ink transition-colors">{{ i18n.t('footer.contact') }}</a>
+          </nav>
+          <span class="eyebrow">© 2026 Pulseo</span>
         </div>
-        <span class="text-[12px] text-ink-soft">© 2026 Pulseo</span>
       </div>
     </footer>
   `,

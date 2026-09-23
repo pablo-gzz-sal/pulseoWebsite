@@ -1,396 +1,260 @@
-import { Component, ElementRef, OnInit, inject, NgZone, computed } from '@angular/core';
+import { Component, ElementRef, NgZone, OnDestroy, OnInit, inject } from '@angular/core';
 import { I18nService } from '../../../core/i18n/i18n.service';
 import { GsapService } from '../../../core/animation/gsap.service';
 import { PhoneMockupComponent } from '../../../shared/components/phone-mockup/phone-mockup.component';
-import { ScreenAiNotesComponent } from '../../../shared/components/screens/screen-ai-notes.component';
+import { ScreenProfilesComponent } from '../../../shared/components/screens/screen-profiles.component';
+
+interface FloatCard {
+  key: 'dose' | 'ai' | 'vax' | 'ice';
+  /** Position around the phone (Tailwind classes). */
+  pos: string;
+  /** Resting depth in px; also scales the mouse parallax. */
+  depth: number;
+  icon: string;
+  tint: string;
+  color: string;
+}
 
 @Component({
   selector: 'app-hero-section',
   standalone: true,
-  imports: [PhoneMockupComponent, ScreenAiNotesComponent],
+  imports: [PhoneMockupComponent, ScreenProfilesComponent],
   template: `
-    <section id="top" class="relative min-h-[100dvh] flex flex-col overflow-hidden">
+    <section id="top" data-nav class="relative">
+      <!-- ── Intro copy ── -->
+      <div class="section flex flex-col items-center text-center pt-40 sm:pt-48 pb-16 sm:pb-20">
+        <h1 class="h-display text-ink">
+          <span class="block overflow-hidden pb-[0.08em] -mb-[0.08em]">
+            <span class="hero-line block">{{ i18n.t('hero.h1a') }}</span>
+          </span>
+          <span class="block overflow-hidden pb-[0.1em]">
+            <span class="hero-line block accent">{{ i18n.t('hero.h1b') }}</span>
+          </span>
+        </h1>
 
-      <!-- ── Layered background ── -->
-      <div aria-hidden="true" class="pointer-events-none absolute inset-0 -z-10">
-        <!-- Large teal arc — bottom right, gives the hero mass and direction -->
-        <div class="absolute -bottom-[280px] -right-[220px] w-[900px] h-[900px] rounded-full"
-             style="background: radial-gradient(closest-side, rgba(8,145,178,0.20) 0%, rgba(34,211,238,0.06) 55%, transparent 100%);"></div>
-        <!-- Soft green accent — top left, creates visual depth -->
-        <div class="absolute -top-[400px] -left-[240px] w-[900px] h-[900px] rounded-full"
-             style="background: radial-gradient(closest-side, rgba(52,211,153,0.13) 0%, transparent 62%);"></div>
-        <!-- Warm amber hint — bottom left, adds warmth -->
-        <div class="absolute bottom-[5%] left-[10%] w-[400px] h-[400px] rounded-full"
-             style="background: radial-gradient(closest-side, rgba(245,158,11,0.06) 0%, transparent 70%);"></div>
-        <!-- Diagonal structural line, top -->
-        <div class="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent"></div>
-        <!-- Fade out to next section -->
-        <div class="absolute inset-x-0 bottom-0 h-48 bg-gradient-to-t from-[#F0F9FF] via-[#F0F9FF]/60 to-transparent"></div>
-      </div>
+        <p class="hero-fade lede mt-8 max-w-[44ch]">{{ i18n.t('hero.sub') }}</p>
 
-      <!-- ── Grid ── -->
-      <div class="section relative z-10 flex-1 flex flex-col justify-center pt-28 pb-20 md:pt-32 md:pb-24">
-        <div class="grid lg:grid-cols-[1.2fr_1fr] gap-12 lg:gap-8 xl:gap-16 items-center">
-
-          <!-- ── Left: copy ── -->
-          <div class="flex flex-col gap-7">
-
-            <!-- Eyebrow badge with live dot -->
-            <div class="hero-eyebrow inline-flex items-center gap-2.5 self-start
-                        px-4 py-1.5 rounded-full
-                        border border-primary/20 bg-white/80
-                        backdrop-blur-sm">
-              <span class="relative flex h-2 w-2 flex-shrink-0">
-                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-secondary opacity-70"></span>
-                <span class="relative inline-flex h-2 w-2 rounded-full bg-secondary"></span>
-              </span>
-              <span class="text-[11px] font-semibold tracking-[0.18em] uppercase text-primary-dark">
-                {{ i18n.t('hero.eyebrow') }}
-              </span>
-            </div>
-
-            <!-- Headline — masked word-by-word reveal, serif italic accent on the close -->
-            <h1 class="hero-headline font-bold leading-[1.02] tracking-[-0.038em] text-ink"
-                style="font-family: var(--font-display);
-                       font-size: clamp(2.8rem, 6.5vw, 5.2rem);
-                       max-width: 14ch;">
-              @for (word of headlineWords(); track $index) {
-                <span class="inline-block overflow-hidden align-bottom pb-[0.08em] -mb-[0.08em] mr-[0.22em] last:mr-0">
-                  <span class="hero-word inline-block"
-                        [class.accent-serif]="word.accent">{{ word.text }}</span>
-                </span>
-              }
-            </h1>
-
-            <!-- Sub — comfortable reading width -->
-            <p class="hero-sub text-[17px] sm:text-[18px] leading-[1.72] text-ink-muted"
-               style="max-width: 48ch;">
-              {{ i18n.t('hero.sub') }}
-            </p>
-
-            <!-- CTA row — button-in-button trailing icon pattern -->
-            <div class="hero-ctas flex flex-wrap items-center gap-3 pt-1">
-              <a href="#waitlist"
-                 class="btn btn-primary gap-3 group active:scale-[0.97]"
-                 style="transition: transform 180ms cubic-bezier(0.32,0.72,0,1),
-                                    box-shadow 180ms cubic-bezier(0.32,0.72,0,1),
-                                    background 180ms cubic-bezier(0.32,0.72,0,1);">
-                {{ i18n.t('hero.cta.primary') }}
-                <span class="inline-flex items-center justify-center w-6 h-6 rounded-full bg-white/20
-                             group-hover:translate-x-0.5 group-hover:bg-white/30
-                             transition-all duration-200">
-                  <svg viewBox="0 0 24 24" class="w-3.5 h-3.5" fill="none"
-                       stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M5 12h14M13 5l7 7-7 7"/>
-                  </svg>
-                </span>
-              </a>
-              <a href="#features"
-                 class="btn btn-ghost gap-2.5 group active:scale-[0.97]"
-                 style="transition: transform 180ms cubic-bezier(0.32,0.72,0,1),
-                                    background 180ms cubic-bezier(0.32,0.72,0,1),
-                                    border-color 180ms cubic-bezier(0.32,0.72,0,1);">
-                <span class="inline-flex items-center justify-center w-6 h-6 rounded-full bg-primary/10
-                             group-hover:bg-primary/18 group-hover:scale-105 transition-all duration-200">
-                  <svg viewBox="0 0 24 24" class="w-3.5 h-3.5 text-primary" fill="none"
-                       stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                    <polygon points="6 4 20 12 6 20 6 4" fill="currentColor" stroke="none"/>
-                  </svg>
-                </span>
-                {{ i18n.t('hero.cta.secondary') }}
-              </a>
-            </div>
-
-            <!-- Trust badges -->
-            <div class="hero-trust flex flex-wrap items-center gap-x-5 gap-y-2.5 pt-1">
-              <div class="flex items-center gap-1.5">
-                <svg viewBox="0 0 24 24" class="w-3.5 h-3.5 text-secondary flex-shrink-0" fill="none"
-                     stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M12 2l10 4v6c0 5.5-4.2 10.7-10 12C6.2 22.7 2 17.5 2 12V6z"/>
-                  <path d="M9 12l2 2 4-4"/>
-                </svg>
-                <span class="text-[12px] font-medium text-ink-muted">
-                  {{ i18n.isES() ? 'Cifrado E2E' : 'E2E encrypted' }}
-                </span>
-              </div>
-              <span class="w-px h-3 bg-slate-300 hidden sm:block" aria-hidden="true"></span>
-              <div class="flex items-center gap-1.5">
-                <svg viewBox="0 0 24 24" class="w-3.5 h-3.5 text-secondary flex-shrink-0" fill="none"
-                     stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                  <rect x="3" y="11" width="18" height="11" rx="2"/>
-                  <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
-                </svg>
-                <span class="text-[12px] font-medium text-ink-muted">
-                  {{ i18n.isES() ? 'Sin venta de datos' : 'No data sold' }}
-                </span>
-              </div>
-              <span class="w-px h-3 bg-slate-300 hidden sm:block" aria-hidden="true"></span>
-              <div class="flex items-center gap-1.5">
-                <svg viewBox="0 0 24 24" class="w-3.5 h-3.5 text-primary flex-shrink-0" fill="none"
-                     stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <circle cx="12" cy="12" r="10"/>
-                  <path d="M2 12h20"/>
-                  <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10A15.3 15.3 0 0 1 12 2z"/>
-                </svg>
-                <span class="text-[12px] font-medium text-ink-muted">
-                  {{ i18n.isES() ? 'Hecho en México' : 'Made in Mexico' }}
-                </span>
-              </div>
-            </div>
-          </div>
-
-          <!-- ── Right: phone constellation ── -->
-          <div class="hero-right-col relative flex justify-center lg:justify-end items-center
-                      order-2 min-h-[420px] lg:min-h-0">
-
-            <!-- Ambient radial glow sitting behind the phone -->
-            <div class="absolute w-[440px] h-[440px] rounded-full -z-10"
-                 style="background: radial-gradient(closest-side, rgba(8,145,178,0.18), transparent);
-                        left: 50%; top: 50%; transform: translate(-50%,-50%);"></div>
-
-            <!-- Phone — 3D-tilt wrapper (rotation applied here via GSAP on desktop) -->
-            <div class="hero-phone-3d relative">
-              <app-phone-mockup width="clamp(230px, 28vw, 350px)">
-                <app-screen-ai-notes />
-              </app-phone-mockup>
-            </div>
-
-            <!-- ── Floating notification cards ── -->
-
-            <!-- Card 1: dose confirmed — upper-left of phone -->
-            <div class="hero-card-1 hidden md:flex absolute top-[8%] -left-4 lg:-left-16
-                        items-center gap-2.5 px-3.5 py-2.5 rounded-2xl
-                        bg-white border border-slate-100/90"
-                 style="box-shadow: 0 18px 44px -12px rgba(8,145,178,0.26),
-                                    0 4px 12px -4px rgba(15,23,42,0.07);">
-              <span class="flex-shrink-0 flex items-center justify-center w-8 h-8 rounded-xl"
-                    style="background: rgba(5,150,105,0.10);">
-                <svg viewBox="0 0 24 24" class="w-4 h-4 text-secondary" fill="none"
-                     stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M5 12l5 5L20 7"/>
-                </svg>
-              </span>
-              <div>
-                <p class="text-[11px] font-bold text-ink leading-snug">
-                  {{ i18n.isES() ? 'Dosis confirmada' : 'Dose confirmed' }}
-                </p>
-                <p class="text-[10px] text-ink-soft mt-0.5">Losartán 50mg · 08:00</p>
-              </div>
-            </div>
-
-            <!-- Card 2: AI note — upper-right of phone -->
-            <div class="hero-card-2 hidden md:flex absolute top-[22%] -right-2 lg:-right-14
-                        items-center gap-2.5 px-3.5 py-2.5 rounded-2xl
-                        bg-white border border-slate-100/90"
-                 style="box-shadow: 0 18px 44px -12px rgba(8,145,178,0.26),
-                                    0 4px 12px -4px rgba(15,23,42,0.07);">
-              <span class="flex-shrink-0 flex items-center justify-center w-8 h-8 rounded-xl"
-                    style="background: rgba(8,145,178,0.10);">
-                <!-- Sparkle / AI icon -->
-                <svg viewBox="0 0 24 24" class="w-4 h-4 text-primary" fill="none"
-                     stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M12 2l1.5 4.5L18 8l-4.5 1.5L12 14l-1.5-4.5L6 8l4.5-1.5z"/>
-                  <path d="M19 14l.8 2.2L22 17l-2.2.8L19 20l-.8-2.2L16 17l2.2-.8z"/>
-                </svg>
-              </span>
-              <div>
-                <p class="text-[11px] font-bold text-ink leading-snug">
-                  {{ i18n.isES() ? 'IA detectó síntoma' : 'AI found a symptom' }}
-                </p>
-                <p class="text-[10px] text-ink-soft mt-0.5">
-                  {{ i18n.isES() ? 'Mamá · dolor de cabeza' : 'Mom · headache' }}
-                </p>
-              </div>
-            </div>
-
-            <!-- Card 3: vaccine reminder — lower-left of phone -->
-            <div class="hero-card-3 hidden md:flex absolute bottom-[26%] -left-2 lg:-left-12
-                        items-center gap-2.5 px-3.5 py-2.5 rounded-2xl
-                        bg-white border border-slate-100/90"
-                 style="box-shadow: 0 18px 44px -12px rgba(8,145,178,0.26),
-                                    0 4px 12px -4px rgba(15,23,42,0.07);">
-              <span class="flex-shrink-0 flex items-center justify-center w-8 h-8 rounded-xl"
-                    style="background: rgba(245,158,11,0.10);">
-                <svg viewBox="0 0 24 24" class="w-4 h-4" style="color:#D97706;" fill="none"
-                     stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                  <circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>
-                </svg>
-              </span>
-              <div>
-                <p class="text-[11px] font-bold text-ink leading-snug">
-                  {{ i18n.isES() ? 'Vacuna en 3 días' : 'Vaccine in 3 days' }}
-                </p>
-                <p class="text-[10px] text-ink-soft mt-0.5">Influenza · Sofía</p>
-              </div>
-            </div>
-
-            <!-- Card 4: streak — lower-right (lg+ only) -->
-            <div class="hero-card-4 hidden lg:flex absolute bottom-[10%] -right-2 lg:-right-10
-                        items-center gap-2.5 px-3.5 py-2.5 rounded-2xl
-                        bg-white border border-slate-100/90"
-                 style="box-shadow: 0 18px 44px -12px rgba(8,145,178,0.26),
-                                    0 4px 12px -4px rgba(15,23,42,0.07);">
-              <span class="flex-shrink-0 flex items-center justify-center w-8 h-8 rounded-xl"
-                    style="background: rgba(8,145,178,0.10);">
-                <svg viewBox="0 0 24 24" class="w-4 h-4 text-primary" fill="none"
-                     stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
-                </svg>
-              </span>
-              <div>
-                <p class="text-[11px] font-bold text-ink leading-snug">
-                  30 {{ i18n.isES() ? 'días de racha' : 'day streak' }}
-                </p>
-                <p class="text-[10px] text-ink-soft mt-0.5">
-                  {{ i18n.isES() ? 'Adherencia perfecta' : 'Perfect adherence' }}
-                </p>
-              </div>
-            </div>
-          </div>
+        <div class="hero-fade mt-10 flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto">
+          <a href="#waitlist" class="btn btn-primary w-full sm:w-auto">
+            {{ i18n.t('hero.cta.primary') }}
+            <svg viewBox="0 0 24 24" class="btn-arrow w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.25"
+                 stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+          </a>
+          <a href="#como-funciona" class="btn btn-ghost w-full sm:w-auto">{{ i18n.t('hero.cta.secondary') }}</a>
         </div>
+
+        <ul class="hero-fade mt-8 flex flex-wrap justify-center items-center gap-x-2.5 gap-y-1 text-[14px] text-ink-soft">
+          @for (k of ['1', '2', '3']; track k; let last = $last) {
+            <li class="inline-flex items-center gap-2.5">
+              {{ i18n.t('hero.proof.' + k) }}
+              @if (!last) { <span aria-hidden="true" class="opacity-40">·</span> }
+            </li>
+          }
+        </ul>
       </div>
 
-      <!-- ── Scroll cue ── -->
-      <div class="hero-scroll-cue absolute bottom-7 left-1/2 -translate-x-1/2 z-10
-                  flex flex-col items-center gap-2" style="opacity:0;">
-        <span class="text-[10px] font-semibold tracking-[0.22em] uppercase text-ink-soft">
-          {{ i18n.isES() ? 'Explorar' : 'Explore' }}
-        </span>
-        <div class="relative w-[2px] h-10 rounded-full overflow-hidden bg-slate-200">
-          <div class="scroll-line absolute inset-x-0 top-0 h-5 rounded-full bg-primary/70"></div>
+      <!-- ── Showcase: rounded card that opens to full-bleed while the phone untilts ── -->
+      <div id="app" data-nav class="showcase relative lg:h-[100dvh]">
+        <div class="showcase-card relative h-full overflow-hidden text-white">
+          <!-- Background: brand glow + faint rings -->
+          <div aria-hidden="true" class="absolute inset-0"
+               style="background:
+                 radial-gradient(60% 55% at 50% 42%, rgba(34,211,238,0.55) 0%, rgba(8,145,178,0.35) 30%, transparent 70%),
+                 linear-gradient(180deg, #0B4F63 0%, #07242F 100%);"></div>
+          <div aria-hidden="true" class="absolute inset-0 opacity-[0.16]"
+               style="background: repeating-radial-gradient(circle at 50% 42%, transparent 0 88px, rgba(255,255,255,0.5) 88px 89px);
+                      mask-image: radial-gradient(55% 55% at 50% 42%, black 20%, transparent 75%);
+                      -webkit-mask-image: radial-gradient(55% 55% at 50% 42%, black 20%, transparent 75%);"></div>
+
+          <span class="show-cue hidden lg:inline-flex absolute top-7 left-1/2 -translate-x-1/2 items-center gap-2 text-[13px] text-white/60 z-10">
+            {{ i18n.t('hero.scroll') }}
+            <svg viewBox="0 0 24 24" class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M6 13l6 6 6-6"/></svg>
+          </span>
+
+          <div class="relative h-full flex flex-col lg:block">
+            <!-- Caption -->
+            <div class="show-caption relative z-20 px-6 pt-14 sm:px-10 lg:px-0 lg:pt-0 lg:absolute lg:left-12 lg:right-12 lg:bottom-12
+                        flex flex-col lg:flex-row lg:items-end lg:justify-between gap-4">
+              <h2 class="h2 text-white max-w-[13ch]">
+                {{ i18n.t('show.title.a') }}
+                <span class="block text-primary-light">{{ i18n.t('show.title.b') }}</span>
+              </h2>
+              <p class="text-[16px] leading-relaxed text-white/70 max-w-[34ch] lg:text-right">{{ i18n.t('show.body') }}</p>
+            </div>
+
+            <!-- 3D stage -->
+            <div class="show-stage relative flex-1 grid place-items-center py-14 lg:py-0 lg:absolute lg:inset-0 lg:-translate-y-8"
+                 style="perspective: 1600px;">
+              <div class="show-rig relative" style="transform-style: preserve-3d; width: clamp(210px, 16.5vw, 250px);">
+                <div class="show-tilt relative" style="transform-style: preserve-3d;">
+                  <app-phone-mockup class="block" width="100%">
+                    <app-screen-profiles />
+                  </app-phone-mockup>
+
+                  @for (c of cards; track c.key) {
+                    <div class="show-float absolute items-center gap-3 pl-2.5 pr-4 py-2.5 rounded-2xl bg-white text-ink whitespace-nowrap {{ c.pos }}"
+                         [attr.data-depth]="c.depth"
+                         style="box-shadow: 0 24px 48px -18px rgba(3,20,28,0.55), 0 2px 6px rgba(3,20,28,0.08);">
+                      <span class="grid place-items-center w-9 h-9 rounded-xl shrink-0" [style.background]="c.tint" [style.color]="c.color">
+                        <svg viewBox="0 0 24 24" class="w-[18px] h-[18px]" fill="none" stroke="currentColor" stroke-width="2.2"
+                             stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path [attr.d]="c.icon"/></svg>
+                      </span>
+                      <span class="flex flex-col">
+                        <span class="text-[13px] font-semibold leading-tight tracking-tight">{{ i18n.t('show.card.' + c.key + '.title') }}</span>
+                        <span class="text-[12px] text-ink-soft leading-tight mt-0.5">{{ i18n.t('show.card.' + c.key + '.meta') }}</span>
+                      </span>
+                    </div>
+                  }
+
+                  <!-- Stat card -->
+                  <div class="show-float absolute hidden md:block top-[44%] -left-[62%] w-[168px] rounded-2xl bg-white text-ink p-4"
+                       data-depth="140"
+                       style="box-shadow: 0 24px 48px -18px rgba(3,20,28,0.55), 0 2px 6px rgba(3,20,28,0.08);">
+                    <span class="block text-[12px] text-ink-soft">{{ i18n.t('show.card.stat.label') }}</span>
+                    <span class="block mt-1 text-[34px] font-semibold tracking-[-0.04em] leading-none tabular-nums">94%</span>
+                    <span class="mt-3 flex items-end gap-[3px] h-7" aria-hidden="true">
+                      @for (h of bars; track $index) {
+                        <span class="flex-1 rounded-[2px]" [style.height.%]="h" [style.background]="h > 85 ? '#059669' : '#A7F3D0'"></span>
+                      }
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </section>
   `,
+  styles: [`
+    .showcase-card {
+      clip-path: inset(0 clamp(12px, 3vw, 48px) 0 round 32px);
+    }
+  `],
 })
-export class HeroSection implements OnInit {
+export class HeroSection implements OnInit, OnDestroy {
   readonly i18n = inject(I18nService);
   private readonly el = inject(ElementRef<HTMLElement>);
   private readonly gsapSvc = inject(GsapService);
   private readonly zone = inject(NgZone);
 
-  /** Headline split into words; the last two carry the italic serif accent. */
-  readonly headlineWords = computed(() => {
-    const words = this.i18n.t('hero.h1').split(' ').filter(Boolean);
-    return words.map((text, i) => ({ text, accent: i >= words.length - 2 }));
-  });
+  private mm: { revert: () => void } | null = null;
+
+  readonly bars = [62, 80, 74, 92, 88, 96, 90, 98, 94];
+
+  readonly cards: FloatCard[] = [
+    {
+      key: 'dose', pos: 'flex top-[9%] -left-[20%] md:-left-[70%]', depth: 120,
+      icon: 'M5 12l5 5L20 7', tint: 'rgba(5,150,105,0.12)', color: '#047857',
+    },
+    {
+      key: 'ai', pos: 'flex top-[24%] -right-[22%] md:-right-[78%]', depth: 180,
+      icon: 'M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8zM19 16l.7 1.8 1.8.7-1.8.7L19 21l-.7-1.8-1.8-.7 1.8-.7z',
+      tint: 'rgba(8,145,178,0.12)', color: '#0E7490',
+    },
+    {
+      key: 'vax', pos: 'hidden md:flex top-[56%] -right-[70%]', depth: 90,
+      icon: 'M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zM12 7v5l3 2', tint: 'rgba(245,158,11,0.14)', color: '#B45309',
+    },
+    {
+      key: 'ice', pos: 'hidden md:flex bottom-[7%] -left-[56%]', depth: 160,
+      icon: 'M12 21s-7-4.35-7-10a4 4 0 0 1 7-2.65A4 4 0 0 1 19 11c0 5.65-7 10-7 10z',
+      tint: 'rgba(220,38,38,0.10)', color: '#B91C1C',
+    },
+  ];
 
   async ngOnInit() {
     const { gsap, ScrollTrigger } = await this.gsapSvc.load();
-    const reduced = this.gsapSvc.prefersReducedMotion();
 
     this.zone.runOutsideAngular(() => {
       const root = this.el.nativeElement as HTMLElement;
-      const q = (sel: string) => root.querySelector(sel);
+      const $ = (sel: string) => root.querySelector(sel) as HTMLElement;
+      const showcase = $('.showcase');
+      const card = $('.showcase-card');
+      const rig = $('.show-rig');
+      const tilt = $('.show-tilt');
+      const caption = $('.show-caption');
+      const cue = $('.show-cue');
+      const floats = Array.from(root.querySelectorAll<HTMLElement>('.show-float'));
 
-      const eyebrow   = q('.hero-eyebrow');
-      const words     = Array.from(root.querySelectorAll('.hero-word'));
-      const sub       = q('.hero-sub');
-      const ctas      = q('.hero-ctas');
-      const trust     = q('.hero-trust');
-      const rightCol  = q('.hero-right-col') as HTMLElement | null;
-      const phone3d   = q('.hero-phone-3d') as HTMLElement | null;
-      const card1     = q('.hero-card-1');
-      const card2     = q('.hero-card-2');
-      const card3     = q('.hero-card-3');
-      const card4     = q('.hero-card-4');
-      const scrollCue = q('.hero-scroll-cue');
-      const scrollLine = q('.scroll-line');
+      this.mm = gsap.matchMedia();
+      const mm = this.mm as ReturnType<typeof gsap.matchMedia>;
 
-      // ── Reduced-motion: set everything to final state immediately ──
-      if (reduced) {
-        gsap.set(
-          [eyebrow, ...words, sub, ctas, trust, rightCol, card1, card2, card3, card4, scrollCue],
-          { opacity: 1, y: 0, x: 0 }
-        );
-        return;
-      }
+      // Intro copy: lines rise out of their masks.
+      mm.add('(prefers-reduced-motion: no-preference)', () => {
+        gsap.timeline({ defaults: { ease: 'power4.out' } })
+          .from(root.querySelectorAll('.hero-line'), { yPercent: 110, duration: 1.1, stagger: 0.12 })
+          .from(root.querySelectorAll('.hero-fade'), { y: 16, opacity: 0, duration: 0.8, stagger: 0.08, ease: 'power3.out' }, 0.35)
+          .from(card, { y: 80, opacity: 0, duration: 1.2 }, 0.45);
+      });
 
-      const isDesktop = window.innerWidth >= 1024;
-
-      // ── 3D tilt on phone (desktop only) ──
-      if (phone3d && isDesktop) {
-        gsap.set(phone3d, {
-          transformPerspective: 1100,
-          rotationY: -14,
-          rotationX: 3,
+      // Desktop: pin the showcase and scrub the reveal.
+      mm.add('(min-width: 1024px) and (prefers-reduced-motion: no-preference)', () => {
+        const tl = gsap.timeline({
+          defaults: { ease: 'none' },
+          scrollTrigger: { trigger: showcase, start: 'top top', end: '+=160%', pin: true, scrub: 0.8 },
         });
 
-        // De-tilt as user scrolls — the phone "straightens" toward the viewer
-        gsap.to(phone3d, {
-          rotationY: 0,
-          rotationX: 0,
-          ease: 'none',
-          scrollTrigger: {
-            trigger: root,
-            start: 'top top',
-            end: 'bottom top',
-            scrub: 1.8,
-          },
+        tl.fromTo(card,
+            { clipPath: 'inset(0% 6% 12% 6% round 40px)' },
+            { clipPath: 'inset(0% 0% 0% 0% round 0px)', duration: 1 }, 0)
+          .fromTo(rig,
+            { rotationX: 38, rotationY: 14, rotationZ: -10, scale: 0.78, y: 40 },
+            { rotationX: 0, rotationY: 0, rotationZ: 0, scale: 1, y: 0, duration: 1.1, ease: 'power1.inOut' }, 0)
+          .to(cue, { opacity: 0, duration: 0.2 }, 0);
+
+        floats.forEach((f, i) => {
+          const depth = Number(f.dataset['depth'] ?? 100);
+          tl.fromTo(f,
+            { opacity: 0, z: -260, scale: 0.6 },
+            { opacity: 1, z: depth, scale: 1, duration: 0.55, ease: 'power2.out' }, 0.45 + i * 0.1);
         });
-      }
 
-      // ── Parallax: whole constellation drifts up gently on scroll ──
-      if (rightCol) {
-        gsap.to(rightCol, {
-          yPercent: 9,
-          ease: 'none',
-          scrollTrigger: {
-            trigger: root,
-            start: 'top top',
-            end: 'bottom top',
-            scrub: true,
-          },
-        });
-      }
+        tl.fromTo(caption, { opacity: 0, y: 40 }, { opacity: 1, y: 0, duration: 0.45, ease: 'power2.out' }, 0.95)
+          .to({}, { duration: 0.35 }); // hold the final frame before releasing the pin
 
-      // ── Entrance timeline ──
-      const tl = gsap.timeline({ defaults: { ease: 'power3.out' } });
+        // Mouse: gentle tilt on the phone, depth parallax on the floating cards.
+        const tiltX = gsap.quickTo(tilt, 'rotationX', { duration: 0.9, ease: 'power3' });
+        const tiltY = gsap.quickTo(tilt, 'rotationY', { duration: 0.9, ease: 'power3' });
+        const moves = floats.map((f) => ({
+          depth: Number(f.dataset['depth'] ?? 100),
+          x: gsap.quickTo(f, 'x', { duration: 1.1, ease: 'power3' }),
+          y: gsap.quickTo(f, 'y', { duration: 1.1, ease: 'power3' }),
+        }));
+        const onMove = (e: PointerEvent) => {
+          const r = showcase.getBoundingClientRect();
+          const nx = (e.clientX - r.left) / r.width - 0.5;
+          const ny = (e.clientY - r.top) / r.height - 0.5;
+          tiltY(nx * 12);
+          tiltX(ny * -8);
+          for (const m of moves) {
+            m.x(nx * m.depth * 0.25);
+            m.y(ny * m.depth * 0.18);
+          }
+        };
+        showcase.addEventListener('pointermove', onMove);
+        return () => showcase.removeEventListener('pointermove', onMove);
+      });
 
-      // Left column — cascade down; headline words rise out of their masks
-      tl.from(eyebrow,  { y: 22, opacity: 0, duration: 0.65 })
-        .from(words,    { yPercent: 112, duration: 0.9, ease: 'power4.out', stagger: 0.05 }, '-=0.40')
-        .from(sub,      { y: 26, opacity: 0, duration: 0.75 }, '-=0.60')
-        .from(ctas,     { y: 20, opacity: 0, duration: 0.60 }, '-=0.55')
-        .from(trust,    { y: 16, opacity: 0, duration: 0.50 }, '-=0.48');
-
-      // Right column — rises from below
-      tl.from(rightCol, { y: 72, opacity: 0, duration: 1.15, ease: 'power4.out' }, 0.18);
-
-      // Cards pop in from their respective edges with a tiny overshoot
-      if (card1) tl.from(card1, { x: -32, opacity: 0, duration: 0.70, ease: 'back.out(1.2)' }, 0.72);
-      if (card2) tl.from(card2, { x:  32, opacity: 0, duration: 0.70, ease: 'back.out(1.2)' }, 0.88);
-      if (card3) tl.from(card3, { x: -26, opacity: 0, duration: 0.70, ease: 'back.out(1.2)' }, 1.04);
-      if (card4) tl.from(card4, { x:  26, opacity: 0, duration: 0.70, ease: 'back.out(1.2)' }, 1.20);
-
-      // Scroll cue fades in last
-      tl.to(scrollCue, { opacity: 1, y: 0, duration: 0.55 }, 1.40);
-
-      // ── Continuous floating — each card at a different rhythm ──
-      const floatTargets = [card1, card2, card3, card4].filter(Boolean) as Element[];
-      floatTargets.forEach((card, i) => {
-        gsap.to(card, {
-          y: `random(-6, 6)`,
-          x: `random(-2, 2)`,
-          duration: 2.8 + i * 0.5,
-          repeat: -1,
-          yoyo: true,
-          ease: 'sine.inOut',
-          delay: i * 0.7,
+      // Smaller screens: no pin, the phone straightens as the card scrolls in.
+      mm.add('(max-width: 1023px) and (prefers-reduced-motion: no-preference)', () => {
+        gsap.fromTo(rig,
+          { rotationX: 24, rotationZ: -6, scale: 0.9 },
+          { rotationX: 0, rotationZ: 0, scale: 1, ease: 'none',
+            scrollTrigger: { trigger: showcase, start: 'top 90%', end: 'center 55%', scrub: true } });
+        floats.forEach((f, i) => {
+          gsap.from(f, {
+            opacity: 0, y: 30, scale: 0.9, duration: 0.7, delay: i * 0.1, ease: 'power3.out',
+            scrollTrigger: { trigger: rig, start: 'top 75%', once: true },
+          });
         });
       });
 
-      // ── Scroll line drip animation ──
-      if (scrollLine) {
-        gsap.to(scrollLine, {
-          y: 20,
-          duration: 1.1,
-          repeat: -1,
-          yoyo: true,
-          ease: 'power1.inOut',
-          delay: 1.6,
-        });
-      }
+      ScrollTrigger.refresh();
     });
+  }
+
+  ngOnDestroy() {
+    this.mm?.revert();
   }
 }
